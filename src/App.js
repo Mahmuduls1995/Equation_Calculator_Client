@@ -54,7 +54,66 @@ function App() {
     }
   }
 
-  
+  function removeElement(e) {
+    let value = e.target.getAttribute("data-value");
+    setEquationArr(
+      equationArr
+        .filter((elem, index) => {
+          return index != value;
+        })
+        .map((elem, index) => {
+          elem.position = index * rectWidth + 15;
+          return elem;
+        })
+    );
+  }
+
+  function handleMouseMove(e) {
+    setMouseCoords({
+      x: e.clientX - mouseOffset.x,
+      y: e.clientY - mouseOffset.y,
+    });
+  }
+
+  function handleMouseUp(e) {
+    if (tempDragGraphic != "") {
+      let value = e.target.getAttribute("data-value");
+      let type = e.target.className;
+      let alphabet = e.target.innerHTML;
+      let canvasElementTop = canvasElement.current.offsetTop;
+      let canvasElementHeight = canvasElement.current.clientHeight;
+      let isInCanvasElement =
+        e.clientY + window.scrollY > canvasElementTop &&
+        e.clientY + window.scrollY < canvasElementTop + canvasElementHeight;
+      setTempDragGraphic("");
+      if (isInCanvasElement) {
+        const boundRect = e.target.getBoundingClientRect();
+        const position = boundRect.left + canvasElement.current.scrollLeft;
+        setEquationArr(
+          [
+            ...equationArr,
+            {
+              value: value,
+              type: type,
+              alphabet: alphabet,
+              position: position,
+            },
+          ]
+            .sort((a, b) => {
+              return a.position - b.position;
+            })
+            .map((elem, index) => {
+              elem.position = index * rectWidth + 15;
+              return elem;
+            })
+        );
+      }
+    }
+  }
+
+  function renderComponent(component) {
+    return component;
+  }
 
   return (
     <div
@@ -87,26 +146,7 @@ function App() {
         ))}
       </div>
       <br />
-      <div className="operators">
-        {operatorArr.map((operator) => (
-          <div
-            className="operator"
-            draggable="true"
-            onDragStart={(e) => drag(e)}
-            data-value={operator}
-          >
-            {operator}
-          </div>
-        ))}
-        <span className="space"></span>
-        {comparatorArr.map((comparator) => (
-          <div
-            className="comparator"
-            data-value={comparator}
-            onClick={(e) => setComparator(e.target.getAttribute("data-value"))}
-          >
-            {comparator}
-          </div>
+     
         ))}
         <span className="space"></span>
         <div
@@ -120,7 +160,36 @@ function App() {
         </div>
       </div>
       <br />
-      
+      <div className="canvas" ref={canvasElement}>
+        {equationArr.map((elem, index) => (
+          <div className={elem.type}>
+            <span
+              className="remove"
+              onClick={(e) => removeElement(e)}
+              data-value={index}
+            >
+              x
+            </span>
+            {elem.alphabet}
+          </div>
+        ))}
+        {comparator && (
+          <div className="comparator">
+            <span className="remove" onClick={() => setComparator("")}>
+              x
+            </span>
+            {comparator}
+          </div>
+        )}
+        {rhs && (
+          <div className="rhs">
+            <span className="remove" onClick={() => setRhs("")}>
+              x
+            </span>
+            {rhs}
+          </div>
+        )}
+      </div>
       <button
         className="submit"
         onClick={() => evaluate(equationArr, comparator, rhs)}
