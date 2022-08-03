@@ -23,7 +23,7 @@ function App() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/alphabets/")
+      .get("https://glacial-hamlet-11609.herokuapp.com/alphabets/")
       .then((response) => setOperandsArr(response.data))
       .catch((err) => console.log(err));
   }, []);
@@ -146,7 +146,26 @@ function App() {
         ))}
       </div>
       <br />
-     
+      <div className="operators">
+        {operatorArr.map((operator) => (
+          <div
+            className="operator"
+            draggable="true"
+            onDragStart={(e) => drag(e)}
+            data-value={operator}
+          >
+            {operator}
+          </div>
+        ))}
+        <span className="space"></span>
+        {comparatorArr.map((comparator) => (
+          <div
+            className="comparator"
+            data-value={comparator}
+            onClick={(e) => setComparator(e.target.getAttribute("data-value"))}
+          >
+            {comparator}
+          </div>
         ))}
         <span className="space"></span>
         <div
